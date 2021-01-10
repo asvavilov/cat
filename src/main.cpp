@@ -6,7 +6,8 @@ WiFiUDP Udp;
 SSD1306 display(0x3c, 5, 4);
 
 unsigned long last_ts;
-bool state;
+bool state = false;
+bool start = true;
 
 // support cyrillic
 char FontUtf8Rus(const byte ch) {
@@ -58,26 +59,15 @@ void setup() {
     delay(500);
   }
   WiFi.setAutoReconnect(true);
-  Serial.print("Connected! IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.printf("UDP server on port %d\n", LOCAL_PORT);
+  start = true;
   Udp.begin(LOCAL_PORT);
-
-  display.clear();
-  display.setColor(WHITE);
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.setFont(ArialMT_Plain_10);
-  display.drawString(64, 0, WiFi.localIP().toString() + ":" + LOCAL_PORT);
-  display.setFont(ArialRus_Plain_14);
-  display.drawString(64, 15, "Waiting...");
-  display.display();
 
   delay(500);
 }
 
 void loop() {
 
-  while (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
 
     display.clear();
@@ -88,8 +78,25 @@ void loop() {
     display.display();
 
     WiFi.reconnect();
+    start = true;
     delay(5000);
     return;
+  }
+  if (start) {
+    start = false;
+
+    Serial.print("Connected! IP address: ");
+    Serial.println(WiFi.localIP());
+    Serial.printf("UDP server on port %d\n", LOCAL_PORT);
+
+    display.clear();
+    display.setColor(WHITE);
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(64, 0, WiFi.localIP().toString() + ":" + LOCAL_PORT);
+    display.setFont(ArialRus_Plain_14);
+    display.drawString(64, 15, "Waiting...");
+    display.display();
   }
 
   // if there's data available, read a packet
