@@ -16,5 +16,5 @@ if ($socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)) {
 	socket_sendto($socket, $message, strlen($message), 0, $server_ip, $server_port);
 	print('sended');
 } else {
-  print("can't create socket\n");
+	print("can't create socket\n");
 }

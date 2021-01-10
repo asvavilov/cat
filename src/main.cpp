@@ -50,12 +50,14 @@ void setup() {
   display.setFontTableLookupFunction(FontUtf8Rus);
   display.flipScreenVertically();
 
+  delay(500);
   WiFi.mode(WIFI_STA);
   WiFi.begin(STASSID, STAPSK);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
     delay(500);
   }
+  WiFi.setAutoReconnect(true);
   Serial.print("Connected! IP address: ");
   Serial.println(WiFi.localIP());
   Serial.printf("UDP server on port %d\n", LOCAL_PORT);
@@ -69,13 +71,25 @@ void setup() {
   display.setFont(ArialRus_Plain_14);
   display.drawString(64, 15, "Waiting...");
   display.display();
+
+  delay(500);
 }
 
 void loop() {
 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
-    delay(500);
+
+    display.clear();
+    display.setColor(WHITE);
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setFont(ArialRus_Plain_16);
+    display.drawString(64, 15, "lost connection...");
+    display.display();
+
+    WiFi.reconnect();
+    delay(5000);
+    return;
   }
 
   // if there's data available, read a packet
